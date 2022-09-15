@@ -3,6 +3,20 @@ workspace(name = "tfx_bsl")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
+    name = "rules_foreign_cc",
+    sha256 = "2a4d07cd64b0719b39a7c12218a3e507672b82a97b98c6a89d38565894cf7c51",
+    strip_prefix = "rules_foreign_cc-0.9.0",
+    url = "https://github.com/bazelbuild/rules_foreign_cc/archive/refs/tags/0.9.0.tar.gz",
+)
+
+load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
+
+# This sets up some common toolchains for building targets. For more details, please see
+# https://bazelbuild.github.io/rules_foreign_cc/0.9.0/flatten.html#rules_foreign_cc_dependencies
+rules_foreign_cc_dependencies()
+
+#"""
+http_archive(
     name = "bazel_skylib",
     sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
     urls = [
@@ -10,6 +24,7 @@ http_archive(
         "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
     ],
 )
+#"""
 
 PROTOBUF_COMMIT = "fde7cf7358ec7cd69e8db9be4f1fa6a5c431386a" # 3.13.0
 http_archive(
@@ -68,19 +83,30 @@ http_archive(
 )
 
 # TODO(b/177694034): Follow the new format for tensorflow import after TF 2.5.
-TENSORFLOW_COMMIT = "582c8d236cb079023657287c318ff26adb239002"  # 2.4.0
+#TENSORFLOW_COMMIT = "582c8d236cb079023657287c318ff26adb239002"  # 2.4.0
+TENSORFLOW_COMMIT = "18960c44ad3f5219c22dca55f842912dbce78a07"  # 2.9.2
 http_archive(
     name = "org_tensorflow_no_deps",
-    sha256 = "9c94bfec7214853750c7cacebd079348046f246ec0174d01cd36eda375117628",
+    sha256 = "cd6db9301e3537ced2ea3b2c2ef7671e1134e4dd5ed2617b79ff1ddc864c1d62",
+    strip_prefix = "tensorflow-%s" % TENSORFLOW_COMMIT,
+    urls = [
+        "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % TENSORFLOW_COMMIT,
+    ],
+    patches = ["//third_party:tensorflow_expose_example_proto.patch"],
+)
+"""
+http_archive(
+    name = "org_tensorflow_no_deps",
+    #sha256 = "9c94bfec7214853750c7cacebd079348046f246ec0174d01cd36eda375117628",
+    sha256 = "8cd7ed82b096dc349764c3369331751e870d39c86e73bbb5374e1664a59dcdf7",
     strip_prefix = "tensorflow-%s" % TENSORFLOW_COMMIT,
     urls = [
         "https://mirror.bazel.build/github.com/tensorflow/tensorflow/archive/%s.tar.gz" % TENSORFLOW_COMMIT,
         "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % TENSORFLOW_COMMIT,
     ],
-    patches = [
-        "//third_party:tensorflow_expose_example_proto.patch",
-    ],
+    patches = ["//third_party:tensorflow_expose_example_proto.patch"],
 )
+"""
 
 PYBIND11_COMMIT = "f1abf5d9159b805674197f6bc443592e631c9130"
 http_archive(

@@ -85,11 +85,18 @@ class _BazelBuildCommand(setuptools.Command):
     self._additional_build_options = []
     if platform.system() == 'Darwin':
       # This flag determines the platform qualifier of the macos wheel.
-      self._additional_build_options = ['--macos_minimum_os=10.14']
+      #self._additional_build_options = ['--macos_minimum_os=10.14']
+      # This flag determines the platform qualifier of the macos wheel.
+      if platform.machine() == 'arm64':
+        self._additional_build_options = ['--macos_minimum_os=11.0',
+                                          '--config=macos_arm64']
+      else:
+        self._additional_build_options = ['--macos_minimum_os=10.14']
 
   def run(self):
     subprocess.check_call(
         [self._bazel_cmd, 'run', '-c', 'opt'] + self._additional_build_options +
+        ['--cpu=darwin_arm64', '--host_cpu=darwin_arm64', '--sandbox_debug', '--verbose_failures'] + 
         ['//tfx_bsl:move_generated_files'],
         # Bazel should be invoked in a directory containing bazel WORKSPACE
         # file, which is the root directory.
